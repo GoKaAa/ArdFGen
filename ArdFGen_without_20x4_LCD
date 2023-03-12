@@ -1,0 +1,82 @@
+int outPin = 7;
+float t = 0.000000;
+float pW = 0.000000;
+float sW = 0.000000;  //t = pW+sW
+float pWus = 0.000000; // 1 us = 1/1000000 s, 1s = 10^6 us
+float sWus = 0.000000;
+float f = 0.000000;
+
+#define uart Serial //if we say uart.println("Hello"); = Serial.println (uart) = (Serial)
+
+void init_sig() {
+  digitalWrite(outPin, HIGH);
+  delayMicroseconds(pWus);
+  digitalWrite(outPin, LOW);
+  delayMicroseconds(sWus);
+}
+
+void setup() {
+  uart.begin(115200);
+  pinMode(outPin, OUTPUT);
+  uart.println("Welcome to ArdFGen!");
+}
+
+void loop() {
+  if (uart.available()) {
+    String input = uart.readString();
+    input.trim();
+    if (input.equals("set pw")) {
+      uart.println("");
+      uart.print("Enter pulse width in us: ");
+      while (uart.available() == 0) {
+        
+      }
+      int gpW = uart.parseInt();
+      pWus = gpW;
+      pW = pWus/1000000;
+      t = pW+sW;
+      f = 1/t;
+      uart.print(pWus);
+      uart.println(" us");
+      uart.print("Pulse Width in Seconds for your signal = pW(us)/10^6 = ");
+      uart.print(pW);
+      uart.println(" s");
+    }
+    if (input.equals("set sw")) {
+      uart.println("");
+      uart.print("Enter space width in us: ");
+      while (uart.available() == 0) {
+        
+      }
+      int gsW = uart.parseInt();
+      sWus = gsW;
+      sW = sWus/1000000;
+      t = pW+sW;
+      f = 1/t;
+      uart.print(sWus);
+      uart.println(" us");
+      uart.print("Space Width in Seconds for your signal = sW(us)/10^6 = ");
+      uart.print(sW);
+      uart.println(" s");
+    }
+    if (input.equals("show_data")) {
+      uart.println("");
+      uart.print("Pulse Width in Micro Seconds: ");
+      uart.println(pWus);
+      uart.print("Space Width in Micro Seconds: ");
+      uart.println(sWus);
+      uart.print("Frequency: ");
+        uart.print(f);
+          uart.println(" Hz");
+    }
+    if (input.equals("init")) {
+      uart.println("");
+      uart.print("Initializing your signal on Digital Pin D");
+      uart.print(outPin);
+      uart.print(" with Frequency: ");
+        uart.print(f);
+          uart.println(" Hz");
+      init_sig();
+    }
+  }
+}
